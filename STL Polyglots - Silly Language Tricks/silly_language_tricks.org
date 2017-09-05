@@ -1,0 +1,342 @@
+#+TITLE: Silly Language Tricks: R with a Lisp accent
+#+COLUMNS: %50ITEM(Task) %13CLOCKSUM(Clocked Total) %8Effort(Estimate){:} %13CLOCKSUM_T(Clocked Today) %18DEADLINE
+#+STARTUP: hidestars indent showeverything
+#+PROPERTY: Effort_ALL 0 0:05 0:15 0:30 1:00 2:00 5:00 10:00 20:00
+#+PROPERTY: ORDERED t
+#+SEQ_TODO: NEXTACTION(@) | DONE(@) TRANSFERRED(@) CANCELLED(@)
+#+PRIORITIES: A E A
+#+DRAWERS: PROPERTIES ARCHIVE
+#+LATEX_HEADER: \hypersetup{colorlinks=true, linkcolor=blue, urlcolor=blue}
+#+OPTIONS: toc:nil num:nil timestamp:nil
+#+AUTHOR: @conornash
+#+HTML_HEAD: <style>.src {background-color: #303030; color: #e5e5e5;}</style>
+#+HTML_HEAD_EXTRA: <link rel="stylesheet" type="text/css" href="./revealjs_vertical_space.css" />
+#+OPTIONS: reveal_center:nil reveal_control:nil reveal_height:1000
+#+OPTIONS: reveal_history:nil reveal_keyboard:t reveal_overview:t
+#+OPTIONS: reveal_progress:t reveal_rolling_links:nil
+#+OPTIONS: reveal_single_file:nil reveal_slide_number:"c"
+#+OPTIONS: reveal_title_slide:auto reveal_width:-1
+#+REVEAL_MARGIN: -1
+#+REVEAL_MIN_SCALE: -1
+#+REVEAL_MAX_SCALE: 1
+#+REVEAL_ROOT: http://cdn.jsdelivr.net/reveal.js/3.0.0/
+#+REVEAL_TRANS: default
+#+REVEAL_SPEED: default
+#+REVEAL_THEME: solarized
+#+REVEAL_EXTRA_CSS:
+#+REVEAL_EXTRA_JS:
+#+REVEAL_HLEVEL:
+#+REVEAL_TITLE_SLIDE_BACKGROUND:
+#+REVEAL_TITLE_SLIDE_BACKGROUND_SIZE:
+#+REVEAL_TITLE_SLIDE_BACKGROUND_POSITION:
+#+REVEAL_TITLE_SLIDE_BACKGROUND_REPEAT:
+#+REVEAL_TITLE_SLIDE_BACKGROUND_TRANSITION:
+#+REVEAL_DEFAULT_SLIDE_BACKGROUND:
+#+REVEAL_DEFAULT_SLIDE_BACKGROUND_SIZE:
+#+REVEAL_DEFAULT_SLIDE_BACKGROUND_POSITION:
+#+REVEAL_DEFAULT_SLIDE_BACKGROUND_REPEAT:
+#+REVEAL_DEFAULT_SLIDE_BACKGROUND_TRANSITION:
+#+REVEAL_MATHJAX_URL: https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML
+#+REVEAL_PREAMBLE:
+#+REVEAL_HEAD_PREAMBLE:
+#+REVEAL_POSTAMBLE:
+#+REVEAL_MULTIPLEX_ID:
+#+REVEAL_MULTIPLEX_SECRET:
+#+REVEAL_MULTIPLEX_URL:
+#+REVEAL_MULTIPLEX_SOCKETIO_URL:
+#+REVEAL_SLIDE_HEADER:
+#+REVEAL_SLIDE_FOOTER:
+#+REVEAL_PLUGINS:
+#+REVEAL_DEFAULT_FRAG_STYLE:
+#+REVEAL_INIT_SCRIPT:
+#+REVEAL_HIGHLIGHT_CSS: %r/lib/css/zenburn.css
+
+
+* What is R?
+- R is an open source programming language and software environment for statistical computing and graphics
+- 14th top programming language in the world /[RedMonk; (Shell/Scala = 12, Go = 15)]/
+- Often compared/contrasted to:
+  + GNU Octave
+  + Mathematica (WolframAlpha)
+  + MATLAB
+  + STATA
+  + SAS
+- Popular among people who work in statistics, analytics, and data science
+
+
+* You know a language is going to be fun when...
+#+BEGIN_QUOTE
+"The design of the language contains a number of fine points and common pitfalls which may surprise the user."
+#+END_QUOTE
+-- R Language Definition
+
+
+* What is R? (for Polyglots)
+- Interpreted, dynamically typed, lazy language that uses functional and (multiple) object-oriented paradigms
+- Doesn't optimize recursion, prefers vectorization
+- No 0-dimensional / scalar types; a scalar variable is a 1 dimensional variable of length 1
+- All objects/variables can have arbitrary metadata assigned
+- Lexical scoping that allows updating local variables in function closures (imperative style)
+- R is an implementation of the S language combined with lexical scoping semantics inspired by Scheme.
+  + S is language and system for organizing, visualizing, and analyzing data. (Bell Labs c. 1976)
+  + R is written in C, FORTRAN and R.
+
+
+* 🔋🔋🔋 included
+/Show me every variable in a dataset plotted against every other variable, using appropriate visualizations based on the data type of each variable. Also, show me correlations in the same way. Also, show me a density estimate of each variable. Also, segment all of the above by one variable that I provide and use that to colour all visualizations and analyses./
+
+
+* Using the built in package installer + graphics
+#+BEGIN_SRC R :results output :exports both :cache yes
+  r = getOption("repos")             # hard code the US repo for CRAN
+  r["CRAN"] <- "http://cran.us.r-project.org"
+  options(repos = r)
+  install.packages("GGally")
+  library(GGally)
+
+  ggpairs(iris, mapping=ggplot2::aes(colour=Species))
+
+#+END_SRC
+
+#+RESULTS[3f86b79689f740576b75ed479d278f2da3afadd4]:
+
+[[file:~/Dropbox/Documents/meetups/STL Polyglots/iris.ggpairs.png]]
+
+
+* With great ⚡ comes great 😕
+Actually, *five* different assignment operators =O_o= 
+
+(and they all return their value...)
+#+BEGIN_SRC R :results output :exports both :cache yes
+  print((kirk = 1))
+
+  print(picard <- 2)
+
+  print(3 -> sisko)
+
+  # Anonymous function
+  (function(x) janeway <<- x )(4)
+  print(janeway)
+
+  # Named function
+  return_input = function(x) {return(x ->> archer)}
+  return_input(5)
+  print(archer)
+
+  # Assign to 3 different variables
+  paste("scary", {klingon <- "alien" -> romulan}) -> borg
+
+  print(c(klingon, romulan, borg))      
+
+#+END_SRC
+
+#+RESULTS[c1e521f6f18f2bd0a8ceafc7200225e796f6cc49]:
+: [1] 1
+: [1] 2
+: [1] 3
+: [1] 4
+: [1] 5
+: [1] "alien"       "alien"       "scary alien"
+
+
+* What about those variables out of nowhere?
+First let's show a little of how R functions work. Optional function arguments can be matched with the =Dot-dot-dot= object (the actual name in the language definition)
+#+BEGIN_SRC R :results output :exports both :cache yes
+  arb = function(...) {
+      return(list(...))
+  }
+
+  arb("NCC", 1701)
+
+#+END_SRC
+
+#+RESULTS[6c4df071d0eecbd15457d78a8c5ec709d36cba0d]:
+: [[1]]
+: [1] "NCC"
+: 
+: [[2]]
+: [1] 1701
+: 
+
+
+* Arguments don't need to be evaluated
+ =list= evaluates its arguments so the =Dot-dot-dot= object is evaluated.  =match.call= is a function that, with no arguments and called from within a function, returns the (unevaluated) call of its parent function.
+#+BEGIN_SRC R :results output :exports both :cache yes
+
+  arb_match = function(...) {
+      return(match.call())
+  }
+
+  print(as.list(arb_match(worf="If you were any other man...")))
+
+  print(as.list(arb_match(data["emotions"] <- emotion_chip)))
+#+END_SRC
+
+#+RESULTS[d061378ed953460d293614074e78ec369e4a7361]:
+#+begin_example
+[[1]]
+arb_match
+
+$worf
+[1] "If you were any other man..."
+
+[[1]]
+arb_match
+
+[[2]]
+data["emotions"] <- emotion_chip
+
+#+end_example
+
+
+* Evaluation-as-a-service
+*R allows you to choose exactly where and when your arguments get evaluated*
+- Can pass the function invocation (or parts thereof) into different scopes where previously undefined variables now are defined
+- Side-effect :: We see how almost everything is a function
+#+BEGIN_SRC R :results output :exports both :cache yes
+  arb_match = function(...) {
+      return(match.call())
+  }
+
+  tryCatch(expr = print(existent_variable), 
+           error = function(e) print("Negative, Captain"))
+
+  removed_calling_function = arb_match(existent_variable <- 10)[-1]
+
+  print(as.list(removed_calling_function[[1]]))
+
+  eval(removed_calling_function[[1]])
+
+  print(existent_variable)
+#+END_SRC
+
+#+RESULTS[87f9a7a0d98242bb0d975df9828a637c3c184869]:
+: [1] "Negative, Captain"
+:
+: [[1]]
+: `<-`
+: 
+: [[2]]
+: existent_variable
+: 
+: [[3]]
+: [1] 10
+: 
+: [1] 10
+
+
+* Accessing parent environment (closure) is possible...
+=parent.frame= returns a data structure containing the variables created in the parent function. This is called an environment in R.
+#+BEGIN_SRC R :results output :exports both :cache yes
+  get_parent_frame = function(...) {    
+      this = 1
+      frame = 2
+      vars = 3
+      res = function(...){        
+          return(parent.frame())
+      }
+      return(res())
+  }
+
+  print(ls(envir = get_parent_frame()))
+  print(environment(get_parent_frame))
+
+#+END_SRC
+
+#+RESULTS[d5633c7072bd213f65a87afb67897843125cbde1]:
+: [1] "frame" "res"   "this"  "vars" 
+: <environment: R_GlobalEnv>
+
+
+* ...and generating new environments programatically
+ =new.env= creates an environment that we can directly manipulate and assign variables within. 
+#+BEGIN_SRC R :results output :exports both :cache yes
+  get_env = function(...) {
+      temp_env = new.env()
+      attr(temp_env, "name") <- "the final frontier"
+      assign("res",
+           function() "to boldly go",
+           envir = temp_env)
+      return(temp_env)
+  }
+
+  print(get_env()) 
+
+  print(get_env()$res())
+#+END_SRC
+
+#+RESULTS[297b20fa2377b4b9db6df1914c45f1b50086dc7a]:
+: <environment: 0x7ff097e557f8>
+: attr(,"name")
+: [1] "the final frontier"
+:
+: [1] "to boldly go"
+
+
+* Putting it all together
+- Lazy evaluation to catch function calls before evaluation
+- Alter function calls to e.g. remove arguments, or even remove originally invoked function
+- Pass unevaluated function calls into different environments (closures)
+- =eval= takes an environment as a parameter and is idempotent
+- Functions in R must begin with an alphabetic character or a period
+
+#+BEGIN_SRC R :results output :exports both :cache yes
+  library(MASS)
+
+  ship_velocity = function(x){
+      res = ifelse(x <= 0.25,
+             paste("Ahead", as.character(fractions(x * 4)), "impulse speed"),
+             paste0("Warp ", as.character(x), ", engage!"))    
+      res[x == 0.25] <- "Ahead full impulse!"
+      return(res)
+  }
+
+  data.frame(speeds=ship_velocity(c(0.1, 0.2, 0.25, 1, 6, 10)))
+
+#+END_SRC
+
+#+RESULTS[3d8252a3fc844ae88c1b106c47101bd301492e49]:
+:                    speeds
+: 1 Ahead 2/5 impulse speed
+: 2 Ahead 4/5 impulse speed
+: 3     Ahead full impulse!
+: 4         Warp 1, engage!
+: 5         Warp 6, engage!
+: 6        Warp 10, engage!
+
+
+* I'm giving her all she's got, captain
+#+BEGIN_SRC R :results output :exports both :cache yes
+  . <- function(f, ...)
+      eval(match.call()[-1], envir=parent.frame())
+
+  .(library, MASS)
+
+  .(`=`, ship_velocity, (function(x){
+      .(`=`, res, .(ifelse,
+                    .(`<=`, x, 0.25),
+                    .(paste, "Ahead", .(as.character,
+                                        .(fractions,
+                                          .(`*`, x, 4))), "impulse speed"),
+                    .(paste0, "Warp ", .(as.character, x), ", engage!")))      
+      .(`=`, res, .(`[<-`, res, .(`==`, x, 0.25), "Ahead full impulse!"))
+      .(return, res)
+  }))
+
+  .(data.frame, speeds=.(ship_velocity, .(c, 0.1, 0.2, 0.25, 1, 6, 10)))
+#+END_SRC
+
+#+RESULTS[14dca60d08b88acb74dad1cd002a197324e4ac71]:
+:                    speeds
+: 1 Ahead 2/5 impulse speed
+: 2 Ahead 4/5 impulse speed
+: 3     Ahead full impulse!
+: 4         Warp 1, engage!
+: 5         Warp 6, engage!
+: 6        Warp 10, engage!
+
+
+* Q & A 
+
+*@conornash*
+
