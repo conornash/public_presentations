@@ -100,7 +100,7 @@
 
 #+RESULTS[3f86b79689f740576b75ed479d278f2da3afadd4]:
 
-[[file:~/Dropbox/Documents/meetups/STL Polyglots/iris.ggpairs.png]]
+[[file:iris.ggpairs.png]]
 
 
 * With great ⚡ comes great 😕
@@ -140,45 +140,47 @@ Actually, *five* different assignment operators =O_o=
 
 
 * What about those variables out of nowhere?
-First let's show a little of how R functions work. Optional function arguments can be matched with the =Dot-dot-dot= object (the actual name in the language definition)
+First let's show a little of how R functions work. Optional function arguments can be matched with the =Dot-dot-dot= object (the actual name in the language definition).  =list= is for heterogeneous collections (i.e. different types)
 #+BEGIN_SRC R :results output :exports both :cache yes
-  arb = function(...) {
-      return(list(...))
+  arb = function(iteration, ...) {
+      return(list(..., iteration))
   }
 
-  arb("NCC", 1701)
+  arb("NCC", 1701, iteration="D")
 
 #+END_SRC
 
-#+RESULTS[6c4df071d0eecbd15457d78a8c5ec709d36cba0d]:
+#+RESULTS[f194aa9e32dffdda0d64a7776f33d2b54bbff206]:
 : [[1]]
 : [1] "NCC"
 : 
 : [[2]]
 : [1] 1701
 : 
+: [[3]]
+: [1] "D"
 
 
 * Arguments don't need to be evaluated
- =list= evaluates its arguments so the =Dot-dot-dot= object is evaluated.  =match.call= is a function that, with no arguments and called from within a function, returns the (unevaluated) call of its parent function.
+ =list= evaluates its arguments so the =Dot-dot-dot= object is evaluated.  =match.call= is a function that, with no arguments and called from within a function, returns the unevaluated call of its parent function.
 #+BEGIN_SRC R :results output :exports both :cache yes
 
   arb_match = function(...) {
       return(match.call())
   }
 
-  print(as.list(arb_match(worf="If you were any other man...")))
+  print(as.list(arb_match(worf_dialogue="  '")))
 
   print(as.list(arb_match(data["emotions"] <- emotion_chip)))
 #+END_SRC
 
-#+RESULTS[d061378ed953460d293614074e78ec369e4a7361]:
+#+RESULTS[a54965586d3e83a926c4b5bea14113e15f6cd60b]:
 #+begin_example
 [[1]]
 arb_match
 
-$worf
-[1] "If you were any other man..."
+$worf_dialogue
+[1] "  '"
 
 [[1]]
 arb_match
@@ -190,39 +192,35 @@ data["emotions"] <- emotion_chip
 
 
 * Evaluation-as-a-service
-*R allows you to choose exactly where and when your arguments get evaluated*
-- Can pass the function invocation (or parts thereof) into different scopes where previously undefined variables now are defined
-- Side-effect :: We see how almost everything is a function
+R allows you to choose exactly where and when your arguments get evaluated.
 #+BEGIN_SRC R :results output :exports both :cache yes
-  arb_match = function(...) {
-      return(match.call())
-  }
+  arb_match = function(...) return(match.call()) 
 
-  tryCatch(expr = print(existent_variable), 
-           error = function(e) print("Negative, Captain"))
+  removed_calling_function = arb_match(warp_power <- TRUE)[-1]
 
-  removed_calling_function = arb_match(existent_variable <- 10)[-1]
+  tryCatch(expr = print(warp_power), 
+           error = function(e) print("I cannae do it, Captain!"))
 
   print(as.list(removed_calling_function[[1]]))
 
   eval(removed_calling_function[[1]])
 
-  print(existent_variable)
+  print(warp_power)
+
 #+END_SRC
 
-#+RESULTS[87f9a7a0d98242bb0d975df9828a637c3c184869]:
-: [1] "Negative, Captain"
-:
+#+RESULTS[7021eb130788102051e8e478385d49671257c33e]:
+: [1] "I cannae do it, Captain!"
 : [[1]]
 : `<-`
 : 
 : [[2]]
-: existent_variable
+: warp_power
 : 
 : [[3]]
-: [1] 10
+: [1] TRUE
 : 
-: [1] 10
+: [1] TRUE
 
 
 * Accessing parent environment (closure) is possible...
@@ -248,13 +246,13 @@ data["emotions"] <- emotion_chip
 : <environment: R_GlobalEnv>
 
 
-* ...and generating new environments programatically
+* ...aswell as generating new environments programatically
  =new.env= creates an environment that we can directly manipulate and assign variables within. 
 #+BEGIN_SRC R :results output :exports both :cache yes
   get_env = function(...) {
       temp_env = new.env()
       attr(temp_env, "name") <- "the final frontier"
-      assign("res",
+      assign("mission",
            function() "to boldly go",
            envir = temp_env)
       return(temp_env)
@@ -262,7 +260,7 @@ data["emotions"] <- emotion_chip
 
   print(get_env()) 
 
-  print(get_env()$res())
+  print(get_env()$mission())
 #+END_SRC
 
 #+RESULTS[297b20fa2377b4b9db6df1914c45f1b50086dc7a]:
@@ -335,8 +333,11 @@ data["emotions"] <- emotion_chip
 : 5         Warp 6, engage!
 : 6        Warp 10, engage!
 
-
 * Q & A 
-
 *@conornash*
 
+- Idea for talk stolen from a StackOverflow question https://stackoverflow.com/questions/24330110/lisp-scheme-like-calls-in-r
+  + Answer to question is actually more performant and simpler than my example
+- Comprehensive list of R language gotchas - The R Inferno: http://www.burns-stat.com/documents/books/the-r-inferno/
+- Klingon font available at https://blogs.msdn.microsoft.com/shawnste/2013/05/20/piqad-font-for-bings-klingon-translator/
+- Org-mode source of this talk available at https://github.com/conornash/public_presentations/tree/master/STL%20Polyglots%20-%20Silly%20Language%20Tricks
