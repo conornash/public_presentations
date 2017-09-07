@@ -73,6 +73,7 @@
 
 * What is R? (for Polyglots)
 - Interpreted, dynamically typed, lazy language that uses functional and (multiple) object-oriented paradigms
+- 1-indexed (like MATLAB, COBOL, Smalltalk, Lua)
 - Doesn't optimize recursion, prefers vectorization
 - No 0-dimensional / scalar types; a scalar variable is a 1 dimensional variable of length 1
 - All objects/variables can have arbitrary metadata assigned
@@ -83,7 +84,7 @@
 
 
 * 🔋🔋🔋 included
-/Show me every variable in a dataset plotted against every other variable, using appropriate visualizations based on the data type of each variable. Also, show me correlations in the same way. Also, show me a density estimate of each variable. Also, segment all of the above by one variable that I provide and use that to colour all visualizations and analyses./
+/Show me every variable in a dataset plotted against every other variable, using appropriate visualizations based on the data type of each variable. Also, show me correlations in the same way. Also, show me a density estimate/histogram of each variable. Also, segment all of the above by one variable that I provide and use that to colour all previously described visualizations and analyses./
 
 
 * Using the built in package installer + graphics
@@ -169,26 +170,21 @@ First let's show a little of how R functions work. Optional function arguments c
       return(match.call())
   }
 
-  print(as.list(arb_match(worf_dialogue="  '")))
+  print(arb_match(worf_dialogue="  '"))
 
   print(as.list(arb_match(data["emotions"] <- emotion_chip)))
+
 #+END_SRC
 
-#+RESULTS[a54965586d3e83a926c4b5bea14113e15f6cd60b]:
-#+begin_example
-[[1]]
-arb_match
+#+RESULTS[1e49ee82a0ef55145898666c930f536f61fcbd08]:
+: arb_match(worf_dialogue = "  '")
+: 
+: [[1]]
+: arb_match
+: 
+: [[2]]
+: data["emotions"] <- emotion_chip
 
-$worf_dialogue
-[1] "  '"
-
-[[1]]
-arb_match
-
-[[2]]
-data["emotions"] <- emotion_chip
-
-#+end_example
 
 
 * Evaluation-as-a-service
@@ -237,12 +233,14 @@ R allows you to choose exactly where and when your arguments get evaluated.
   }
 
   print(ls(envir = get_parent_frame()))
+
   print(environment(get_parent_frame))
 
 #+END_SRC
 
 #+RESULTS[d5633c7072bd213f65a87afb67897843125cbde1]:
 : [1] "frame" "res"   "this"  "vars" 
+: 
 : <environment: R_GlobalEnv>
 
 
@@ -261,6 +259,7 @@ R allows you to choose exactly where and when your arguments get evaluated.
   print(get_env()) 
 
   print(get_env()$mission())
+
 #+END_SRC
 
 #+RESULTS[297b20fa2377b4b9db6df1914c45f1b50086dc7a]:
@@ -305,8 +304,7 @@ R allows you to choose exactly where and when your arguments get evaluated.
 
 * I'm giving her all she's got, captain
 #+BEGIN_SRC R :results output :exports both :cache yes
-  . <- function(f, ...)
-      eval(match.call()[-1], envir=parent.frame())
+  . <- function(f, ...) eval(match.call()[-1], envir=parent.frame())
 
   .(library, MASS)
 
@@ -322,9 +320,10 @@ R allows you to choose exactly where and when your arguments get evaluated.
   }))
 
   .(data.frame, speeds=.(ship_velocity, .(c, 0.1, 0.2, 0.25, 1, 6, 10)))
+
 #+END_SRC
 
-#+RESULTS[14dca60d08b88acb74dad1cd002a197324e4ac71]:
+#+RESULTS[f1ed447a01572b5cbfab4829dd6e19a4190f6e44]:
 :                    speeds
 : 1 Ahead 2/5 impulse speed
 : 2 Ahead 4/5 impulse speed
@@ -333,7 +332,7 @@ R allows you to choose exactly where and when your arguments get evaluated.
 : 5         Warp 6, engage!
 : 6        Warp 10, engage!
 
-* Q & A 
+* Thank you!
 *@conornash*
 
 - Idea for talk stolen from a StackOverflow question https://stackoverflow.com/questions/24330110/lisp-scheme-like-calls-in-r
