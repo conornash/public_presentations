@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Silly Language Tricks: R with a Lisp accent</title>
+<meta name="author" content="(@conornash)"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/reveal.js/3.0.0/css/reveal.css"/>
+
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/reveal.js/3.0.0/css/theme/solarized.css" id="theme"/>
+
+
+<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+<script>
+    if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = 'http://cdn.jsdelivr.net/reveal.js/3.0.0/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    }
+</script>
+<style>.src {background-color: #303030; color: #e5e5e5;}</style>
+<link rel="stylesheet" type="text/css" href="./revealjs_vertical_space.css" />
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide" data-background="" data-background-size="" data-background-position="" data-background-repeat="" data-background-transition=""><h1 class="title">Silly Language Tricks: R with a Lisp accent</h1><h2 class="author">@conornash</h2>
+</section>
+
+
+<section id="slide-org6eb9d81" data-background="" data-background-size="" data-background-position="" data-background-repeat="" data-background-transition="">
+<div class="slide-header"></div>
+<h2 id="org6eb9d81">What is R?</h2>
+<ul>
+<li>R is an open source programming language and software environment for statistical computing and graphics</li>
+<li>14th top programming language in the world <i>[RedMonk; (Shell/Scala = 12, Go = 15)]</i></li>
+<li>Often compared/contrasted to:
+<ul>
+<li>GNU Octave</li>
+<li>Mathematica (WolframAlpha)</li>
+<li>MATLAB</li>
+<li>STATA</li>
+<li>SAS</li>
+
+</ul></li>
+<li>Popular among people who work in statistics, analytics, and data science</li>
+
+</ul>
+
+
+<div class="slide-footer"></div>
+</section>
+<section id="slide-orgf568b25" data-background="" data-background-size="" data-background-position="" data-background-repeat="" data-background-transition="">
+<div class="slide-header"></div>
+<h2 id="orgf568b25">You know a language is going to be fun when&#x2026;</h2>
+<blockquote nil>
+<p>
+"The design of the language contains a number of fine points and common pitfalls which may surprise the user."
+</p>
+</blockquote>
+<p>
+&#x2013; R Language Definition
+</p>
+
+
+<div class="slide-footer"></div>
+</section>
+<section id="slide-org9a8277a" data-background="" data-background-size="" data-background-position="" data-background-repeat="" data-background-transition="">
+<div class="slide-header"></div>
+<h2 id="org9a8277a">What is R? (for Polyglots)</h2>
+<ul>
+<li>Interpreted, dynamically typed, lazy language that uses functional and (multiple) object-oriented paradigms</li>
+<li>1-indexed (like MATLAB, COBOL, Smalltalk, Lua)</li>
+<li>Doesn't optimize recursion, prefers vectorization</li>
+<li>No 0-dimensional / scalar types; a scalar variable is a 1 dimensional variable of length 1</li>
+<li>All objects/variables can have arbitrary metadata assigned</li>
+<li>Lexical scoping that allows updating local variables in function closures (imperative style)</li>
+<li>R is an implementation of the S language combined with lexical scoping semantics inspired by Scheme.
+<ul>
+<li>S is language and system for organizing, visualizing, and analyzing data. (Bell Labs c. 1976)</li>
+<li>R is written in C, FORTRAN and R.</li>
+
+</ul></li>
+
+</ul>
+
+
+<div class="slide-footer"></div>
+</section>
+<section id="slide-orgf96d132" data-background="" data-background-size="" data-background-position="" data-background-repeat="" data-background-transition="">
+<div class="slide-header"></div>
+<h2 id="orgf96d132">🔋🔋🔋 included</h2>
+<p>
+<i>Show me every variable in a dataset plotted against every other variable, using appropriate visualizations based on the data type of each variable. Also, show me correlations in the same way. Also, show me a density estimate/histogram of each variable. Also, segment all of the above by one variable that I provide and use that to colour all previously described visualizations and analyses.</i>
+</p>
+
+
+<div class="slide-footer"></div>
+</section>
+<section id="slide-orgc4a59dc" data-background="" data-background-size="" data-background-position="" data-background-repeat="" data-background-transition="">
+<div class="slide-header"></div>
+<h2 id="orgc4a59dc">Using the built in package installer + graphics</h2>
+<div class="org-src-container">
+
+<pre  class="src src-R">r = getOption<span style="color: #8c8c8c;">(</span><span style="color: #8AE234;">"repos"</span><span style="color: #8c8c8c;">)</span>             <span style="color: #7C7C7C;"># </span><span style="color: #7C7C7C;">hard code the US repo for CRAN</span>
+r<span style="color: #8c8c8c;">[</span><span style="color: #8AE234;">"CRAN"</span><span style="color: #8c8c8c;">]</span> <span style="color: #99CC99;">&lt;-</span> <span style="color: #8AE234;">"http://cran.us.r-project.org"</span>
+options<span style="color: #8c8c8c;">(</span>repos = r<span style="color: #8c8c8c;">)</span>
+install.packages<span style="color: #8c8c8c;">(</span><span style="color: #8AE234;">"GGally"</span><span style="color: #8c8c8c;">)</span>
+<span style="color: #99CC99;">library</span><span style="color: #8c8c8c;">(</span>GGally<span style="color: #8c8c8c;">)</span>
+
+ggpairs<span style="color: #8c8c8c;">(</span>iris, mapping=ggplot2::aes<span style="color: #93a8c6;">(</span>colour=Species<span style="color: #93a8c6;">)</span><span style="color: #8c8c8c;">)</span>
+
+</pre>
+</div>
+
+
+<div class="figure">
+<p><img src="iris.ggpairs.png" alt="iris.ggpairs.png" />
+</p>
+</div>
+
+
+<div class="slide-footer"></div>
+</section>
+<section id="slide-org4e72e5d" data-background="" data-background-size="" data-background-position="" data-background-repeat="" data-background-transition="">
+<div class="slide-header"></div>
+<h2 id="org4e72e5d">With great ⚡ comes great 😕</h2>
+<p>
+Actually, <b>five</b> different assignment operators <code>O_o</code> 
+</p>
+
+<p>
+(and they all return their value&#x2026;)
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-R">print<span style="color: #8c8c8c;">(</span><span style="color: #93a8c6;">(</span>kirk = 1<span style="color: #93a8c6;">)</span><span style="color: #8c8c8c;">)</span>
+
+print<span style="color: #8c8c8c;">(</span>picard <span style="color: #99CC99;">&lt;-</span> 2<span style="color: #8c8c8c;">)</span>
+
+print<span style="color: #8c8c8c;">(</span>3 <span style="color: #99CC99;">-&gt;</span> sisko<span style="color: #8c8c8c;">)</span>
+
+<span style="color: #7C7C7C;"># </span><span style="color: #7C7C7C;">Anonymous function</span>
+<span style="color: #8c8c8c;">(</span><span style="color: #96CBFE;">function</span><span style="color: #93a8c6;">(</span>x<span style="color: #93a8c6;">)</span> janeway <span style="color: #99CC99;">&lt;&lt;-</span> x <span style="color: #8c8c8c;">)(</span>4<span style="color: #8c8c8c;">)</span>
+print<span style="color: #8c8c8c;">(</span>janeway<span style="color: #8c8c8c;">)</span>
+
+<span style="color: #7C7C7C;"># </span><span style="color: #7C7C7C;">Named function</span>
+return_input = <span style="color: #96CBFE;">function</span><span style="color: #8c8c8c;">(</span>x<span style="color: #8c8c8c;">)</span> <span style="color: #8c8c8c;">{</span><span style="color: #96CBFE;">return</span><span style="color: #93a8c6;">(</span>x <span style="color: #99CC99;">-&gt;&gt;</span> archer<span style="color: #93a8c6;">)</span><span style="color: #8c8c8c;">}</span>
+return_input<span style="color: #8c8c8c;">(</span>5<span style="color: #8c8c8c;">)</span>
+print<span style="color: #8c8c8c;">(</span>archer<span style="color: #8c8c8c;">)</span>
+
+<span style="color: #7C7C7C;"># </span><span style="color: #7C7C7C;">Assign to 3 different variables</span>
+paste<span style="color: #8c8c8c;">(</span><span style="color: #8AE234;">"scary"</span>, <span style="color: #93a8c6;">{</span>klingon <span style="color: #99CC99;">&lt;-</span> <span style="color: #8AE234;">"alien"</span> <span style="color: #99CC99;">-&gt;</span> romulan<span style="color: #93a8c6;">}</span><span style="color: #8c8c8c;">)</span> <span style="color: #99CC99;">-&gt;</span> borg
+
+print<span style="color: #8c8c8c;">(</span>c<span style="color: #93a8c6;">(</span>klingon, romulan, borg<span style="color: #93a8c6;">)</span><span style="color: #8c8c8c;">)</span>      
+
+</pre>
+</div>
+
+<pre class="example">
+[1] 1
+[1] 2
+[1] 3
+[1] 4
+[1] 5
+[1] "alien"       "alien"       "scary alien"
+
+</pre>
+
+
+<div class="slide-footer"></div>
+</section>
+<section id="slide-orgae0d363" data-background="" data-background-size="" data-background-position="" data-background-repeat="" data-background-transition="">
+<div class="slide-header"></div>
+<h2 id="orgae0d363">What about those variables out of nowhere?</h2>
+<p>
+First let's show a little of how R functions work. Optional function arguments can be matched with the <code>Dot-dot-dot</code> object (the actual name in the language definition).  <code>list</code> is for heterogeneous collections (i.e. different types)
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-R">arb = <span style="color: #96CBFE;">function</span><span style="color: #8c8c8c;">(</span>iteration, ...<span style="color: #8c8c8c;">)</span> <span style="color: #8c8c8c;">{</span>
+    <span style="color: #96CBFE;">return</span><span style="color: #93a8c6;">(</span>list<span style="color: #b0b1a3;">(</span>..., iteration<span style="color: #b0b1a3;">)</span><span style="color: #93a8c6;">)</span>
+<span style="color: #8c8c8c;">}</span>
+
+arb<span style="color: #8c8c8c;">(</span><span style="color: #8AE234;">"NCC"</span>, 1701, iteration=<span style="color: #8AE234;">"D"</span><span style="color: #8c8c8c;">)</span>
+
+</pre>
+</div>
+
+<pre class="example">
+[[1]]
+[1] "NCC"
+
+[[2]]
+[1] 1701
+
+[[3]]
+[1] "D"
+
+</pre>
+
+
+<div class="slide-footer"></div>
+</section>
+<section id="slide-org9b917ab" data-background="" data-background-size="" data-background-position="" data-background-repeat="" data-background-transition="">
+<div class="slide-header"></div>
+<h2 id="org9b917ab">Arguments don't need to be evaluated</h2>
+<p>
+<code>list</code> evaluates its arguments so the <code>Dot-dot-dot</code> object is evaluated.  <code>match.call</code> is a function that, with no arguments and called from within a function, returns the unevaluated call of its parent function.
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-R">arb_match = <span style="color: #96CBFE;">function</span><span style="color: #8c8c8c;">(</span>...<span style="color: #8c8c8c;">)</span> <span style="color: #8c8c8c;">{</span>
+    <span style="color: #96CBFE;">return</span><span style="color: #93a8c6;">(</span>match.call<span style="color: #b0b1a3;">()</span><span style="color: #93a8c6;">)</span>
+<span style="color: #8c8c8c;">}</span>
+
+print<span style="color: #8c8c8c;">(</span>arb_match<span style="color: #93a8c6;">(</span>worf_dialogue=<span style="color: #8AE234;">"&#63696;&#63697;&#63698;&#63699;&#63700;&#63701;  &#63705;'&#63706;&#63707;&#63708;"</span><span style="color: #93a8c6;">)</span><span style="color: #8c8c8c;">)</span>
+
+print<span style="color: #8c8c8c;">(</span>as.list<span style="color: #93a8c6;">(</span>arb_match<span style="color: #b0b1a3;">(</span>data<span style="color: #97b098;">[</span><span style="color: #8AE234;">"emotions"</span><span style="color: #97b098;">]</span> <span style="color: #99CC99;">&lt;-</span> emotion_chip<span style="color: #b0b1a3;">)</span><span style="color: #93a8c6;">)</span><span style="color: #8c8c8c;">)</span>
+
+</pre>
+</div>
+
+<pre class="example">
+arb_match(worf_dialogue = "  '")
+[[1]]
+arb_match
+
+[[2]]
+data["emotions"] &lt;- emotion_chip
+
+
+</pre>
+
+
+
+<div class="slide-footer"></div>
+</section>
+<section id="slide-orgc378920" data-background="" data-background-size="" data-background-position="" data-background-repeat="" data-background-transition="">
+<div class="slide-header"></div>
+<h2 id="orgc378920">Evaluation-as-a-service</h2>
+<p>
+R allows you to choose exactly where and when your arguments get evaluated.
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-R">arb_match = <span style="color: #96CBFE;">function</span><span style="color: #8c8c8c;">(</span>...<span style="color: #8c8c8c;">)</span> <span style="color: #96CBFE;">return</span><span style="color: #8c8c8c;">(</span>match.call<span style="color: #93a8c6;">()</span><span style="color: #8c8c8c;">)</span> 
+
+removed_calling_function = arb_match<span style="color: #8c8c8c;">(</span>warp_power <span style="color: #99CC99;">&lt;-</span> <span style="color: #CFCB90;">TRUE</span><span style="color: #8c8c8c;">)[</span>-1<span style="color: #8c8c8c;">]</span>
+
+tryCatch<span style="color: #8c8c8c;">(</span>expr = print<span style="color: #93a8c6;">(</span>warp_power<span style="color: #93a8c6;">)</span>, 
+         error = <span style="color: #96CBFE;">function</span><span style="color: #93a8c6;">(</span>e<span style="color: #93a8c6;">)</span> print<span style="color: #93a8c6;">(</span><span style="color: #8AE234;">"I cannae do it, Captain!"</span><span style="color: #93a8c6;">)</span><span style="color: #8c8c8c;">)</span>
+
+print<span style="color: #8c8c8c;">(</span>as.list<span style="color: #93a8c6;">(</span>removed_calling_function<span style="color: #b0b1a3;">[</span><span style="color: #97b098;">[</span>1<span style="color: #97b098;">]</span><span style="color: #b0b1a3;">]</span><span style="color: #93a8c6;">)</span><span style="color: #8c8c8c;">)</span>
+
+eval<span style="color: #8c8c8c;">(</span>removed_calling_function<span style="color: #93a8c6;">[</span><span style="color: #b0b1a3;">[</span>1<span style="color: #b0b1a3;">]</span><span style="color: #93a8c6;">]</span><span style="color: #8c8c8c;">)</span>
+
+print<span style="color: #8c8c8c;">(</span>warp_power<span style="color: #8c8c8c;">)</span>
+
+</pre>
+</div>
+
+<pre class="example">
+[1] "I cannae do it, Captain!"
+[[1]]
+`&lt;-`
+
+[[2]]
+warp_power
+
+[[3]]
+[1] TRUE
+
+[1] TRUE
+
+</pre>
+
+
+<div class="slide-footer"></div>
+</section>
+<section id="slide-orgd07d6c5" data-background="" data-background-size="" data-background-position="" data-background-repeat="" data-background-transition="">
+<div class="slide-header"></div>
+<h2 id="orgd07d6c5">Accessing parent environment (closure) is possible&#x2026;</h2>
+<p>
+<code>parent.frame</code> returns a data structure containing the variables created in the parent function. This is called an environment in R.
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-R">get_parent_frame = <span style="color: #96CBFE;">function</span><span style="color: #8c8c8c;">(</span>...<span style="color: #8c8c8c;">)</span> <span style="color: #8c8c8c;">{</span>    
+    this = 1
+    frame = 2
+    vars = 3
+    res = <span style="color: #96CBFE;">function</span><span style="color: #93a8c6;">(</span>...<span style="color: #93a8c6;">){</span>        
+        <span style="color: #96CBFE;">return</span><span style="color: #b0b1a3;">(</span>parent.frame<span style="color: #97b098;">()</span><span style="color: #b0b1a3;">)</span>
+    <span style="color: #93a8c6;">}</span>
+    <span style="color: #96CBFE;">return</span><span style="color: #93a8c6;">(</span>res<span style="color: #b0b1a3;">()</span><span style="color: #93a8c6;">)</span>
+<span style="color: #8c8c8c;">}</span>
+
+print<span style="color: #8c8c8c;">(</span>ls<span style="color: #93a8c6;">(</span>envir = get_parent_frame<span style="color: #b0b1a3;">()</span><span style="color: #93a8c6;">)</span><span style="color: #8c8c8c;">)</span>
+
+print<span style="color: #8c8c8c;">(</span>environment<span style="color: #93a8c6;">(</span>get_parent_frame<span style="color: #93a8c6;">)</span><span style="color: #8c8c8c;">)</span>
+
+</pre>
+</div>
+
+<pre class="example">
+[1] "frame" "res"   "this"  "vars" 
+&lt;environment: R_GlobalEnv&gt;
+
+</pre>
+
+
+<div class="slide-footer"></div>
+</section>
+<section id="slide-orgb068761" data-background="" data-background-size="" data-background-position="" data-background-repeat="" data-background-transition="">
+<div class="slide-header"></div>
+<h2 id="orgb068761">&#x2026;aswell as generating new environments programatically</h2>
+<p>
+<code>new.env</code> creates an environment that we can directly manipulate and assign variables within. 
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-R">get_env = <span style="color: #96CBFE;">function</span><span style="color: #8c8c8c;">(</span>...<span style="color: #8c8c8c;">)</span> <span style="color: #8c8c8c;">{</span>
+    temp_env = new.env<span style="color: #93a8c6;">()</span>
+    attr<span style="color: #93a8c6;">(</span>temp_env, <span style="color: #8AE234;">"name"</span><span style="color: #93a8c6;">)</span> <span style="color: #99CC99;">&lt;-</span> <span style="color: #8AE234;">"the final frontier"</span>
+    assign<span style="color: #93a8c6;">(</span><span style="color: #8AE234;">"mission"</span>,
+         <span style="color: #96CBFE;">function</span><span style="color: #b0b1a3;">()</span> <span style="color: #8AE234;">"to boldly go"</span>,
+         envir = temp_env<span style="color: #93a8c6;">)</span>
+    <span style="color: #96CBFE;">return</span><span style="color: #93a8c6;">(</span>temp_env<span style="color: #93a8c6;">)</span>
+<span style="color: #8c8c8c;">}</span>
+
+print<span style="color: #8c8c8c;">(</span>get_env<span style="color: #93a8c6;">()</span><span style="color: #8c8c8c;">)</span> 
+
+print<span style="color: #8c8c8c;">(</span>get_env<span style="color: #93a8c6;">()</span>$mission<span style="color: #93a8c6;">()</span><span style="color: #8c8c8c;">)</span>
+
+</pre>
+</div>
+
+<pre class="example">
+&lt;environment: 0x7fc4fd4f67f8&gt;
+attr(,"name")
+[1] "the final frontier"
+[1] "to boldly go"
+
+</pre>
+
+
+<div class="slide-footer"></div>
+</section>
+<section id="slide-orge97c41d" data-background="" data-background-size="" data-background-position="" data-background-repeat="" data-background-transition="">
+<div class="slide-header"></div>
+<h2 id="orge97c41d">Putting it all together</h2>
+<ul>
+<li>Lazy evaluation to catch function calls before evaluation</li>
+<li>Alter function calls to e.g. remove arguments, or even remove originally invoked function</li>
+<li>Pass unevaluated function calls into different environments (closures)</li>
+<li><code>eval</code> takes an environment as a parameter and is idempotent</li>
+<li>Functions in R must begin with an alphabetic character or a period</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre  class="src src-R"><span style="color: #99CC99;">library</span><span style="color: #8c8c8c;">(</span>MASS<span style="color: #8c8c8c;">)</span>
+
+ship_velocity = <span style="color: #96CBFE;">function</span><span style="color: #8c8c8c;">(</span>x<span style="color: #8c8c8c;">){</span>
+    res = ifelse<span style="color: #93a8c6;">(</span>x &lt;= 0.25,
+           paste<span style="color: #b0b1a3;">(</span><span style="color: #8AE234;">"Ahead"</span>, as.character<span style="color: #97b098;">(</span>fractions<span style="color: #aebed8;">(</span>x * 4<span style="color: #aebed8;">)</span><span style="color: #97b098;">)</span>, <span style="color: #8AE234;">"impulse speed"</span><span style="color: #b0b1a3;">)</span>,
+           paste0<span style="color: #b0b1a3;">(</span><span style="color: #8AE234;">"Warp "</span>, as.character<span style="color: #97b098;">(</span>x<span style="color: #97b098;">)</span>, <span style="color: #8AE234;">", engage!"</span><span style="color: #b0b1a3;">)</span><span style="color: #93a8c6;">)</span>    
+    res<span style="color: #93a8c6;">[</span>x == 0.25<span style="color: #93a8c6;">]</span> <span style="color: #99CC99;">&lt;-</span> <span style="color: #8AE234;">"Ahead full impulse!"</span>
+    <span style="color: #96CBFE;">return</span><span style="color: #93a8c6;">(</span>res<span style="color: #93a8c6;">)</span>
+<span style="color: #8c8c8c;">}</span>
+
+data.frame<span style="color: #8c8c8c;">(</span>speeds=ship_velocity<span style="color: #93a8c6;">(</span>c<span style="color: #b0b1a3;">(</span>0.1, 0.2, 0.25, 1, 6, 10<span style="color: #b0b1a3;">)</span><span style="color: #93a8c6;">)</span><span style="color: #8c8c8c;">)</span>
+
+</pre>
+</div>
+
+<pre class="example">
+                   speeds
+1 Ahead 2/5 impulse speed
+2 Ahead 4/5 impulse speed
+3     Ahead full impulse!
+4         Warp 1, engage!
+5         Warp 6, engage!
+6        Warp 10, engage!
+
+</pre>
+
+
+<div class="slide-footer"></div>
+</section>
+<section id="slide-orge380a88" data-background="" data-background-size="" data-background-position="" data-background-repeat="" data-background-transition="">
+<div class="slide-header"></div>
+<h2 id="orge380a88">I'm giving her all she's got, captain</h2>
+<div class="org-src-container">
+
+<pre  class="src src-R"><span style="color: #FFD2A7;">.</span> <span style="color: #99CC99;">&lt;-</span> <span style="color: #96CBFE;">function</span><span style="color: #8c8c8c;">(</span>f, ...<span style="color: #8c8c8c;">)</span> eval<span style="color: #8c8c8c;">(</span>match.call<span style="color: #93a8c6;">()[</span>-1<span style="color: #93a8c6;">]</span>, envir=parent.frame<span style="color: #93a8c6;">()</span><span style="color: #8c8c8c;">)</span>
+
+.<span style="color: #8c8c8c;">(</span><span style="color: #99CC99;">library</span>, MASS<span style="color: #8c8c8c;">)</span>
+
+.<span style="color: #8c8c8c;">(</span><span style="color: #c5c8c6; background-color: #1d1f21;">`=`</span>, ship_velocity, <span style="color: #93a8c6;">(</span><span style="color: #96CBFE;">function</span><span style="color: #b0b1a3;">(</span>x<span style="color: #b0b1a3;">){</span>
+    .<span style="color: #97b098;">(</span><span style="color: #c5c8c6; background-color: #1d1f21;">`=`</span>, res, .<span style="color: #aebed8;">(</span>ifelse,
+                  .<span style="color: #b0b0b3;">(</span><span style="color: #c5c8c6; background-color: #1d1f21;">`&lt;=`</span>, x, 0.25<span style="color: #b0b0b3;">)</span>,
+                  .<span style="color: #b0b0b3;">(</span>paste, <span style="color: #8AE234;">"Ahead"</span>, .<span style="color: #90a890;">(</span>as.character,
+                                      .<span style="color: #a2b6da;">(</span>fractions,
+                                        .<span style="color: #9cb6ad;">(</span><span style="color: #c5c8c6; background-color: #1d1f21;">`*`</span>, x, 4<span style="color: #9cb6ad;">)</span><span style="color: #a2b6da;">)</span><span style="color: #90a890;">)</span>, <span style="color: #8AE234;">"impulse speed"</span><span style="color: #b0b0b3;">)</span>,
+                  .<span style="color: #b0b0b3;">(</span>paste0, <span style="color: #8AE234;">"Warp "</span>, .<span style="color: #90a890;">(</span>as.character, x<span style="color: #90a890;">)</span>, <span style="color: #8AE234;">", engage!"</span><span style="color: #b0b0b3;">)</span><span style="color: #aebed8;">)</span><span style="color: #97b098;">)</span>      
+    .<span style="color: #97b098;">(</span><span style="color: #c5c8c6; background-color: #1d1f21;">`=`</span>, res, .<span style="color: #aebed8;">(</span><span style="color: #c5c8c6; background-color: #1d1f21;">`[&lt;-`</span>, res, .<span style="color: #b0b0b3;">(</span><span style="color: #c5c8c6; background-color: #1d1f21;">`==`</span>, x, 0.25<span style="color: #b0b0b3;">)</span>, <span style="color: #8AE234;">"Ahead full impulse!"</span><span style="color: #aebed8;">)</span><span style="color: #97b098;">)</span>
+    .<span style="color: #97b098;">(</span><span style="color: #96CBFE;">return</span>, res<span style="color: #97b098;">)</span>
+<span style="color: #b0b1a3;">}</span><span style="color: #93a8c6;">)</span><span style="color: #8c8c8c;">)</span>
+
+.<span style="color: #8c8c8c;">(</span>data.frame, speeds=.<span style="color: #93a8c6;">(</span>ship_velocity, .<span style="color: #b0b1a3;">(</span>c, 0.1, 0.2, 0.25, 1, 6, 10<span style="color: #b0b1a3;">)</span><span style="color: #93a8c6;">)</span><span style="color: #8c8c8c;">)</span>
+
+</pre>
+</div>
+
+<pre class="example">
+                   speeds
+1 Ahead 2/5 impulse speed
+2 Ahead 4/5 impulse speed
+3     Ahead full impulse!
+4         Warp 1, engage!
+5         Warp 6, engage!
+6        Warp 10, engage!
+
+</pre>
+
+<div class="slide-footer"></div>
+</section>
+<section id="slide-org2e34da5" data-background="" data-background-size="" data-background-position="" data-background-repeat="" data-background-transition="">
+<div class="slide-header"></div>
+<h2 id="org2e34da5">Thank you!</h2>
+<p>
+<b>@conornash</b>
+</p>
+
+<ul>
+<li>Idea for talk stolen from a StackOverflow question <a href="https://stackoverflow.com/questions/24330110/lisp-scheme-like-calls-in-r">https://stackoverflow.com/questions/24330110/lisp-scheme-like-calls-in-r</a>
+<ul>
+<li>Answer to question is actually more performant and simpler than my example</li>
+
+</ul></li>
+<li>Comprehensive list of R language gotchas - The R Inferno: <a href="http://www.burns-stat.com/documents/books/the-r-inferno/">http://www.burns-stat.com/documents/books/the-r-inferno/</a></li>
+<li>Klingon font available at <a href="https://blogs.msdn.microsoft.com/shawnste/2013/05/20/piqad-font-for-bings-klingon-translator/">https://blogs.msdn.microsoft.com/shawnste/2013/05/20/piqad-font-for-bings-klingon-translator/</a></li>
+<li>Org-mode source of this talk available at <a href="https://github.com/conornash/public_presentations/tree/master/STL%20Polyglots%20-%20Silly%20Language%20Tricks">https://github.com/conornash/public_presentations/tree/master/STL Polyglots - Silly Language Tricks</a></li>
+
+</ul>
+<div class="slide-footer"></div>
+</section>
+</section>
+</div>
+</div>
+<script src="http://cdn.jsdelivr.net/reveal.js/3.0.0/lib/js/head.min.js"></script>
+<script src="http://cdn.jsdelivr.net/reveal.js/3.0.0/js/reveal.js"></script>
+
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: false,
+progress: true,
+history: false,
+center: false,
+slideNumber: 'c',
+rollingLinks: false,
+keyboard: true,
+overview: true,
+height: 1000,
+maxScale: 1.00,
+
+theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+transitionSpeed: 'default',
+multiplex: {
+    secret: '', // null if client
+    id: '', // id, obtained from socket.io server
+    url: '' // Location of socket.io server
+},
+
+// Optional libraries used to extend on reveal.js
+dependencies: [
+ { src: 'http://cdn.jsdelivr.net/reveal.js/3.0.0/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+ { src: 'http://cdn.jsdelivr.net/reveal.js/3.0.0/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: 'http://cdn.jsdelivr.net/reveal.js/3.0.0/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: 'http://cdn.jsdelivr.net/reveal.js/3.0.0/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: 'http://cdn.jsdelivr.net/reveal.js/3.0.0/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }]
+,});
+</script>
+</body>
+</html>
